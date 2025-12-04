@@ -7,8 +7,8 @@ Thanks for your interest in contributing to this IoT Plant Monitoring project!
 1. **Fork this repository** to your own GitHub account.
 2. **Clone the project** to your machine:
    ```bash
-   git clone [https://github.com/ArchofSignals/EL_Sem1.git](https://github.com/ArchofSignals/EL_Sem1.git)
-   How to Contribute
+   git clone [https://github.com/your_username/EL_Sem1.git](https://github.com/your_username/EL_Sem1.git)
+   
 Create a new branch for your feature or fix:
 
 Bash
