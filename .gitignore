@@ -1,0 +1,61 @@
+# ==========================
+# Python (server.py)
+# ==========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+
+# Environment Variables (Keep your API keys/Secrets safe!)
+.env
+.env.local
+
+# ==========================
+# ESP32 / Arduino (Plant_EL)
+# ==========================
+# PlatformIO (if you switch from Arduino IDE to VSCode/PlatformIO)
+.pio/
+.pioenvs/
+
+# Arduino IDE generated files
+*.elf
+*.bin
+*.hex
+*.map
+*.uf2
+
+# Local or specific build directories
+/Plant_EL/build/
+
+# ==========================
+# Security & Credentials
+# ==========================
+# Explicitly ignore files containing WiFi/Server passwords
+secrets.h
+credentials.h
+config.py
+
+# ==========================
+# Editors & OS
+# ==========================
+# Neovim / Vim swap files
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
