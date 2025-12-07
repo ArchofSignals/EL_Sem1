@@ -41,7 +41,7 @@ void setup() {
 void sendData(float t, float h, int raw, int pct) {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin("http://192.168.1.50:5000/data");
+  http.begin("http://172.17.1.86:5000/data");
   http.addHeader("Content-Type", "application/json");
   String payload = "{\"temperature\":" + String(t,1) + ",";
   payload += "\"humidity\":" + String(h,1) + ",";
