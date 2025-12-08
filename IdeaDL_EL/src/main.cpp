@@ -5,12 +5,12 @@
 #include <Adafruit_ADXL345_U.h>
 
 // --- WIFI CONFIG ---
-const char* ssid = "YOUR_WIFI_NAME";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid = "Octadex Prime";
+const char* password = "meitantei@2060";
 
 // --- MQTT CONFIG ---
 // Use your laptop's local IP address (e.g., 192.168.1.5)
-const char* mqtt_server = "192.168.X.X"; 
+const char* mqtt_server = "192.168.70.79"; 
 const int mqtt_port = 1883;
 const char* mqtt_topic = "sensor/vibration";
 

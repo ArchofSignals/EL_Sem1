@@ -3,11 +3,20 @@ import sqlite3
 import time
 import math
 from datetime import datetime
+import computation
+import os  # <--- Add this library
+
+# --- CONFIGURATION ---
+# Get the folder where THIS python script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Force the database to live in that same folder
+DB_NAME = os.path.join(BASE_DIR, "factory_data.db")
 
 # --- CONFIGURATION ---
 MQTT_BROKER = "localhost"  # Since this script runs on the same laptop as Mosquitto
 MQTT_TOPIC = "sensor/vibration"
-DB_NAME = "factory_data.db"
+
 
 # Threshold for "Fault Detection" (in m/s^2)
 # Normal gravity is ~9.8. If vibration spikes +/- 5m/s^2, we flag it.
@@ -33,32 +42,7 @@ def init_db():
     conn.close()
     print(f"Database {DB_NAME} initialized.")
 
-# --- COMPUTATION LOGIC ---
-def process_data(payload):
-    try:
-        # 1. Parse string "x,y,z" into floats
-        parts = payload.split(',')
-        x = float(parts[0])
-        y = float(parts[1])
-        z = float(parts[2])
 
-        # 2. Compute Total Acceleration Vector (Pythagoras theorem)
-        # Vector Magnitude = sqrt(x^2 + y^2 + z^2)
-        magnitude = math.sqrt(x**2 + y**2 + z**2)
-
-        # 3. Simple Fault Logic
-        # If the machine is still, magnitude is ~9.8 (Gravity). 
-        # Strong vibration pushes this much higher.
-        status = "NORMAL"
-        if magnitude > FAULT_THRESHOLD:
-            status = "CRITICAL FAULT"
-            print(f"⚠️ FAULT DETECTED! Magnitude: {magnitude:.2f} m/s^2")
-
-        return x, y, z, magnitude, status
-
-    except Exception as e:
-        print(f"Error processing data: {e}")
-        return None
 
 # --- MQTT CALLBACKS ---
 def on_connect(client, userdata, flags, rc):
@@ -69,8 +53,8 @@ def on_message(client, userdata, msg):
     payload = msg.payload.decode()
     # print(f"Received: {payload}") # Uncomment to debug raw stream
 
-    # Process Data
-    result = process_data(payload)
+    # Process Data using computation module
+    result = computation.process_data(payload, FAULT_THRESHOLD)
     
     if result:
         x, y, z, vib, status = result
