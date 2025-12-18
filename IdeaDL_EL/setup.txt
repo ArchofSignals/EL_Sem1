@@ -1,0 +1,8 @@
+Upload code to esp32
+
+Setup MQTT Broker
+.\mosquitto -v -c my_config.conf
+
+server.py
+
+app.py

@@ -1,96 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibration Fault Monitor</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        
-        /* Status Box Styles */
-        #status-box {
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            border-radius: 5px;
-            background-color: #4CAF50; /* Default Green */
-        }
-        .critical { background-color: #f44336 !important; animation: blink 1s infinite; }
-        
-        @keyframes blink { 50% { opacity: 0.5; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Vibration Monitor</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f9;
+    padding: 20px;
+    text-align: center;
+}
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+h1 {
+    margin-bottom: 10px;
+}
+#status-box {
+    margin: 20px 0;
+    padding: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 6px;
+    background-color: #4CAF50;
+}
+#status-box.critical {
+    background-color: #f44336;
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+</style>
 </head>
+
 <body>
+<div class="container">
+    <h1>🏭 Machine Vibration Monitor</h1>
+    <div id="status-box">SYSTEM NORMAL</div>
+    <canvas id="vibrationChart"></canvas>
+</div>
 
-    <div class="container">
-        <h1>🏭 Machine Vibration Monitor</h1>
-        
-        <div id="status-box">SYSTEM NORMAL</div>
+<script>
+const ctx = document.getElementById("vibrationChart").getContext("2d");
+const statusBox = document.getElementById("status-box");
 
-        <canvas id="vibrationChart"></canvas>
-    </div>
+const MAX_POINTS = 50;
 
-    <script>
-        const ctx = document.getElementById('vibrationChart').getContext('2d');
-        const statusBox = document.getElementById('status-box');
-        
-        // Initialize Empty Chart
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Vibration Magnitude (m/s²)',
-                    data: [],
-                    borderColor: '#007bff',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1
-                }]
+const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Vibration Magnitude (m/s²)",
+            data: [],
+            borderWidth: 2,
+            tension: 0.25,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false,
+        scales: {
+            x: {
+                ticks: { maxTicksLimit: 10 }
             },
-            options: {
-                animation: false, // Disable animation for smoother real-time updates
-                scales: {
-                    y: { beginAtZero: true, suggestedMax: 20 }
-                }
-            }
-        });
-
-        // Function to fetch data from Python
-        async function updateData() {
-            try {
-                const response = await fetch('/data');
-                const data = await response.json();
-
-                if (data.length > 0) {
-                    // Update Status Box based on latest reading
-                    const latest = data[data.length - 1];
-                    statusBox.innerText = latest.status;
-                    
-                    if (latest.status !== "NORMAL") {
-                        statusBox.classList.add("critical");
-                    } else {
-                        statusBox.classList.remove("critical");
-                    }
-
-                    // Update Chart Data
-                    chart.data.labels = data.map(d => d.timestamp.split(" ")[1]); // Show only time
-                    chart.data.datasets[0].data = data.map(d => d.total_vibration);
-                    chart.update();
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
+            y: {
+                beginAtZero: true,
+                suggestedMax: 20
             }
         }
+    }
+});
 
-        // Poll server every 1000ms (1 second)
-        setInterval(updateData, 1000);
-    </script>
+async function updateData() {
+    try {
+        const response = await fetch("/data");
+        const data = await response.json();
+        if (!data.length) return;
 
+        const latest = data[data.length - 1];
+
+        // Update status display
+        statusBox.textContent = latest.status;
+        statusBox.classList.toggle("critical", latest.status !== "NORMAL");
+
+        // Append latest point
+        const timeLabel = new Date(latest.timestamp).toLocaleTimeString();
+
+        chart.data.labels.push(timeLabel);
+        chart.data.datasets[0].data.push(Number(latest.total_vibration));
+
+        // Keep sliding window
+        if (chart.data.labels.length > MAX_POINTS) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+
+        chart.update();
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+// Poll every second
+setInterval(updateData, 1000);
+</script>
 </body>
 </html>
